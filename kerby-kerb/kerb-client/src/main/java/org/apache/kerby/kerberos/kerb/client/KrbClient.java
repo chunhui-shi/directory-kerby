@@ -21,6 +21,7 @@ package org.apache.kerby.kerberos.kerb.client;
 
 import org.apache.kerby.KOptions;
 import org.apache.kerby.kerberos.kerb.KrbException;
+import org.apache.kerby.kerberos.kerb.keytab.Keytab;
 import org.apache.kerby.kerberos.kerb.type.ticket.TgtTicket;
 
 import java.io.File;
@@ -84,6 +85,28 @@ public class KrbClient extends KrbClientBase {
         requestOptions.add(KrbOption.CLIENT_PRINCIPAL, principal);
         requestOptions.add(KrbOption.USE_KEYTAB, true);
         requestOptions.add(KrbOption.KEYTAB_FILE, keytabFile);
+        return requestTgt(requestOptions);
+    }
+
+    /**
+     * Request a TGT using a pre-loaded {@link Keytab} object.
+     *
+     * <p>This overload avoids any file-system access, making it suitable for
+     * environments where the keytab material is sourced entirely from memory
+     * (e.g. decoded from a base64 string stored in a secrets manager).
+     * The supplied {@code keytab} must contain a key for {@code principal}.
+     *
+     * @param principal the client principal (e.g. {@code user@REALM})
+     * @param keytab    a pre-loaded keytab containing keys for the principal
+     * @return the obtained TGT
+     * @throws KrbException if the TGT request fails
+     */
+    public TgtTicket requestTgt(String principal,
+                                Keytab keytab) throws KrbException {
+        KOptions requestOptions = new KOptions();
+        requestOptions.add(KrbOption.CLIENT_PRINCIPAL, principal);
+        requestOptions.add(KrbOption.USE_KEYTAB, true);
+        requestOptions.add(KrbOption.KEYTAB_OBJECT, keytab);
         return requestTgt(requestOptions);
     }
 }

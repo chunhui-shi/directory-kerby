@@ -39,8 +39,15 @@ public class AsRequestWithKeytab extends AsRequest {
     }
 
     private Keytab getKeytab() {
-        File keytabFile = null;
         KOptions kOptions = getRequestOptions();
+
+        // Prefer a pre-loaded Keytab object when available; this avoids any
+        // file-system access and supports in-memory keytab material.
+        if (kOptions.contains(KrbOption.KEYTAB_OBJECT)) {
+            return (Keytab) kOptions.getOptionValue(KrbOption.KEYTAB_OBJECT);
+        }
+
+        File keytabFile = null;
 
         if (kOptions.contains(KrbOption.KEYTAB_FILE)) {
             keytabFile = kOptions.getFileOption(KrbOption.KEYTAB_FILE);

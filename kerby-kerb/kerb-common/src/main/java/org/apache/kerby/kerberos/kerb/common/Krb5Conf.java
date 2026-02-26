@@ -27,6 +27,7 @@ import org.apache.kerby.kerberos.kerb.type.base.EncryptionType;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,8 +44,49 @@ public class Krb5Conf extends Conf {
     private static final String LIST_SPLITTER = " |,";
     private Map<String, Object> krb5Map;
 
+    /**
+     * Load Kerberos configuration from a file on disk.
+     *
+     * @param krb5File the krb5.conf file
+     * @throws IOException if the file cannot be read
+     */
     public void addKrb5Config(File krb5File) throws IOException {
         Krb5Parser krb5Parser = new Krb5Parser(krb5File);
+        krb5Parser.load();
+        krb5Map = krb5Parser.getItems();
+        addResource(Resource.createMapResource(krb5Map));
+    }
+
+    /**
+     * Load Kerberos configuration from an {@link InputStream}.
+     *
+     * <p>This allows callers to supply krb5.conf content from in-memory sources
+     * (e.g. a value read from a secrets manager) without requiring a file on disk
+     * or the JVM-global {@code java.security.krb5.conf} system property.
+     * The caller is responsible for closing the stream after this method returns.
+     *
+     * @param inputStream stream of krb5.conf content
+     * @throws IOException if the stream cannot be read
+     */
+    public void addKrb5Config(InputStream inputStream) throws IOException {
+        Krb5Parser krb5Parser = new Krb5Parser(inputStream);
+        krb5Parser.load();
+        krb5Map = krb5Parser.getItems();
+        addResource(Resource.createMapResource(krb5Map));
+    }
+
+    /**
+     * Load Kerberos configuration from a {@link String}.
+     *
+     * <p>This is the most convenient form for embedding krb5.conf content
+     * directly in connector properties files or loading it from a secrets manager,
+     * removing the need for a separate configuration file on disk.
+     *
+     * @param configContent krb5.conf content as a string
+     * @throws IOException if the content cannot be parsed
+     */
+    public void addKrb5Config(String configContent) throws IOException {
+        Krb5Parser krb5Parser = new Krb5Parser(configContent);
         krb5Parser.load();
         krb5Map = krb5Parser.getItems();
         addResource(Resource.createMapResource(krb5Map));

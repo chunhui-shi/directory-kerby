@@ -64,6 +64,14 @@ public enum KrbOption implements KOption {
     USE_DFT_KEYTAB(new KOptionInfo("-i", "use default client keytab (with -k)")),
     KEYTAB_FILE(new KOptionInfo("-t", "filename of keytab to use",
         KOptionType.FILE)),
+    /**
+     * A pre-loaded {@link org.apache.kerby.kerberos.kerb.keytab.Keytab} object.
+     * When present, takes precedence over {@link #KEYTAB_FILE} and avoids any
+     * file-system access, allowing keytab material to be supplied entirely
+     * from memory (e.g. decoded from a base64 string stored in a secrets manager).
+     */
+    KEYTAB_OBJECT(new KOptionInfo("keytab-object", "pre-loaded keytab object",
+        KOptionType.OBJ)),
 
     KRB5_CACHE(new KOptionInfo("krb5-cache", "K5 cache name",
         KOptionType.FILE)),

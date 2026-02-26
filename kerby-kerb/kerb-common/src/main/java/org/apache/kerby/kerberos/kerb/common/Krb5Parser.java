@@ -22,7 +22,9 @@ package org.apache.kerby.kerberos.kerb.common;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -33,9 +35,23 @@ import java.util.Map;
 
 /**
  * A parser to parse krb5.conf format file.
+ *
+ * <p>Supports three input sources:
+ * <ul>
+ *   <li>A {@link File} on disk (original behaviour)</li>
+ *   <li>An {@link InputStream} whose content is in krb5.conf format</li>
+ *   <li>A {@link String} whose content is in krb5.conf format</li>
+ * </ul>
+ * The latter two forms allow callers to supply Kerberos configuration
+ * from in-memory sources (e.g. values read from a secrets store) without
+ * requiring a file to exist on disk or the JVM-global
+ * {@code java.security.krb5.conf} system property to be set.
  */
 public class Krb5Parser {
-    private File krb5conf;
+    private final File krb5conf;
+    private final InputStream inputStream;
+    private final String configContent;
+
     /**
      * The variable items regards section name as a key of Map, and
      * contents of a section as a value with Object type.
@@ -45,29 +61,74 @@ public class Krb5Parser {
      */
     private Map<String, Object> items;
 
+    /**
+     * Construct with a krb5.conf file on disk.
+     *
+     * @param confFile the krb5.conf file
+     */
     public Krb5Parser(File confFile) {
-        krb5conf = confFile;
+        this.krb5conf = confFile;
+        this.inputStream = null;
+        this.configContent = null;
+        items = null;
+    }
+
+    /**
+     * Construct with an {@link InputStream} whose content is in krb5.conf format.
+     *
+     * <p>The caller is responsible for closing the stream after {@link #load()} returns.
+     *
+     * @param inputStream stream of krb5.conf content
+     */
+    public Krb5Parser(InputStream inputStream) {
+        this.inputStream = inputStream;
+        this.krb5conf = null;
+        this.configContent = null;
+        items = null;
+    }
+
+    /**
+     * Construct with a {@link String} whose content is in krb5.conf format.
+     *
+     * <p>This is the most convenient form for embedding Kerberos configuration
+     * inside connector properties files or loading it from a secrets manager.
+     *
+     * @param configContent krb5.conf content as a string
+     */
+    public Krb5Parser(String configContent) {
+        this.configContent = configContent;
+        this.krb5conf = null;
+        this.inputStream = null;
         items = null;
     }
 
     /**
      * Load the krb5.conf into a member variable, which is a Map.
-     * @throws IOException e
+     *
+     * @throws IOException if the content cannot be read or parsed
      */
     public void load() throws IOException {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(krb5conf.toPath()),
-            StandardCharsets.UTF_8))) {
+        final BufferedReader br;
+        if (configContent != null) {
+            br = new BufferedReader(new StringReader(configContent));
+        } else if (inputStream != null) {
+            br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+        } else {
+            br = new BufferedReader(new InputStreamReader(
+                    Files.newInputStream(krb5conf.toPath()), StandardCharsets.UTF_8));
+        }
+        try (BufferedReader reader = br) {
             items = new IdentityHashMap<>();
 
-            String originLine = br.readLine();
+            String originLine = reader.readLine();
             while (originLine != null) {
                 String line = originLine.trim();
             /*parse through comments*/
                 if (line.isEmpty() || isComment(line)) {
-                    originLine = br.readLine();
+                    originLine = reader.readLine();
                 } else if (line.startsWith("[")) {
-                    insertSections(line, br, items);
-                    originLine = br.readLine();
+                    insertSections(line, reader, items);
+                    originLine = reader.readLine();
                 } else if (line.startsWith("include")) {
                     String[] splited = line.trim().split("\\s+");
                     if (splited.length == 2) {
@@ -75,7 +136,7 @@ public class Krb5Parser {
                     } else {
                         throw new RuntimeException("Unable to parse:" + originLine);
                     }
-                    originLine = br.readLine();
+                    originLine = reader.readLine();
                 } else {
                     throw new RuntimeException("Unable to parse:" + originLine);
                 }

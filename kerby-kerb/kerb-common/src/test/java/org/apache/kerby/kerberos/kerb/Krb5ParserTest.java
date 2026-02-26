@@ -24,7 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -86,6 +89,47 @@ public class Krb5ParserTest {
         assertThat(k.getSection("logging")).isInstanceOf(Map.class);
         assertThat((Map<String, Object>) k.getSection("logging")).hasSize(3);
         assertThat(k.getSection("logging", "default")).isEqualTo("FILE:/var/log/krb5libs.log");
+    }
 
+    /**
+     * Verify that {@link Krb5Parser} produces identical results when the
+     * krb5.conf content is supplied as a {@link String} instead of a
+     * {@link File}.
+     */
+    @Test
+    public void testFromString() throws IOException {
+        URL url = Krb5ParserTest.class.getResource("/krb5.conf");
+        String content = new String(Files.readAllBytes(new File(url.getFile()).toPath()),
+                StandardCharsets.UTF_8);
+
+        Krb5Parser k = new Krb5Parser(content);
+        k.load();
+
+        assertThat(k.getSections()).hasSize(5);
+        assertThat(k.getSections()).containsOnly("include", "libdefaults", "realms", "domain_realm", "logging");
+        assertThat(k.getSection("libdefaults", "default_realm")).isEqualTo("KRB.COM");
+        assertThat(k.getSection("realms", "ATHENA.MIT.EDU", "admin_server")).isEqualTo("KERBEROS.MIT.EDU");
+        assertThat(k.getSection("domain_realm", ".mit.edu")).isEqualTo("ATHENA.MIT.EDU");
+    }
+
+    /**
+     * Verify that {@link Krb5Parser} produces identical results when the
+     * krb5.conf content is supplied as an {@link InputStream} instead of a
+     * {@link File}.
+     */
+    @Test
+    public void testFromInputStream() throws IOException {
+        URL url = Krb5ParserTest.class.getResource("/krb5.conf");
+
+        try (InputStream is = url.openStream()) {
+            Krb5Parser k = new Krb5Parser(is);
+            k.load();
+
+            assertThat(k.getSections()).hasSize(5);
+            assertThat(k.getSections()).containsOnly("include", "libdefaults", "realms", "domain_realm", "logging");
+            assertThat(k.getSection("libdefaults", "default_realm")).isEqualTo("KRB.COM");
+            assertThat(k.getSection("realms", "ATHENA.MIT.EDU", "admin_server")).isEqualTo("KERBEROS.MIT.EDU");
+            assertThat(k.getSection("domain_realm", ".mit.edu")).isEqualTo("ATHENA.MIT.EDU");
+        }
     }
 }
