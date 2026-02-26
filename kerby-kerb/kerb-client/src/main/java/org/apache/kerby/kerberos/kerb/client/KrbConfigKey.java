@@ -44,7 +44,7 @@ public enum KrbConfigKey implements ConfigKey {
     PROXIABLE(true),
     RENEWABLE_ALLOWED(true),
     VERIFY_BODY_CHECKSUM(true),
-    PERMITTED_ENCTYPES("aes128-cts-hmac-sha1-96"),
+    PERMITTED_ENCTYPES("aes256-cts-hmac-sha1-96 aes128-cts-hmac-sha1-96"),
     DEFAULT_REALM(null),
     DNS_LOOKUP_KDC(false),
     DNS_LOOKUP_REALM(false),
