@@ -22,7 +22,9 @@ package org.apache.kerby.kerberos.kerb.crypto;
 import org.apache.kerby.kerberos.kerb.KrbErrorCode;
 import org.apache.kerby.kerberos.kerb.KrbException;
 import org.apache.kerby.kerberos.kerb.crypto.enc.Aes128CtsHmacSha1Enc;
+import org.apache.kerby.kerberos.kerb.crypto.enc.Aes128CtsHmacSha256Enc;
 import org.apache.kerby.kerberos.kerb.crypto.enc.Aes256CtsHmacSha1Enc;
+import org.apache.kerby.kerberos.kerb.crypto.enc.Aes256CtsHmacSha384Enc;
 import org.apache.kerby.kerberos.kerb.crypto.enc.Camellia128CtsCmacEnc;
 import org.apache.kerby.kerberos.kerb.crypto.enc.Camellia256CtsCmacEnc;
 import org.apache.kerby.kerberos.kerb.crypto.enc.Des3CbcSha1Enc;
@@ -133,6 +135,14 @@ public class EncryptionHandler {
             case AES256_CTS_HMAC_SHA1_96:
             case AES256_CTS:
                 encHandler = new Aes256CtsHmacSha1Enc();
+                break;
+
+            case AES128_CTS_HMAC_SHA256_128:
+                encHandler = new Aes128CtsHmacSha256Enc();
+                break;
+
+            case AES256_CTS_HMAC_SHA384_192:
+                encHandler = new Aes256CtsHmacSha384Enc();
                 break;
 
             case CAMELLIA128_CTS_CMAC:

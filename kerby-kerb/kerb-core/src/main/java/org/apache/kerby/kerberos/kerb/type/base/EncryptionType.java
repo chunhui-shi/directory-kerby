@@ -67,6 +67,12 @@ public enum EncryptionType implements EnumType {
     AES256_CTS_HMAC_SHA1_96(0x0012, "aes256-cts-hmac-sha1-96", "AES-256 CTS mode with 96-bit SHA-1 HMAC"),
     AES256_CTS(0x0012, "aes256-cts", "AES-256 CTS mode with 96-bit SHA-1 HMAC"),
 
+    AES128_CTS_HMAC_SHA256_128(0x0013, "aes128-cts-hmac-sha256-128",
+        "AES-128 CTS mode with 128-bit SHA-256 HMAC"),
+
+    AES256_CTS_HMAC_SHA384_192(0x0014, "aes256-cts-hmac-sha384-192",
+        "AES-256 CTS mode with 192-bit SHA-384 HMAC"),
+
     ARCFOUR_HMAC(0x0017, "arcfour-hmac", "ArcFour with HMAC/md5"),
     RC4_HMAC(0x0017, "rc4-hmac", "ArcFour with HMAC/md5"),
     ARCFOUR_HMAC_MD5(0x0017, "arcfour-hmac-md5", "ArcFour with HMAC/md5"),

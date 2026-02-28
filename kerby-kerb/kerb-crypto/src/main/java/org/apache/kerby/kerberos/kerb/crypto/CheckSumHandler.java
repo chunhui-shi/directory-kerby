@@ -28,6 +28,8 @@ import org.apache.kerby.kerberos.kerb.crypto.cksum.DesCbcCheckSum;
 import org.apache.kerby.kerberos.kerb.crypto.cksum.HmacMd5Rc4CheckSum;
 import org.apache.kerby.kerberos.kerb.crypto.cksum.HmacSha1Aes128CheckSum;
 import org.apache.kerby.kerberos.kerb.crypto.cksum.HmacSha1Aes256CheckSum;
+import org.apache.kerby.kerberos.kerb.crypto.cksum.HmacSha256Aes128CheckSum;
+import org.apache.kerby.kerberos.kerb.crypto.cksum.HmacSha384Aes256CheckSum;
 import org.apache.kerby.kerberos.kerb.crypto.cksum.HmacSha1Des3CheckSum;
 import org.apache.kerby.kerberos.kerb.crypto.cksum.Md5HmacRc4CheckSum;
 import org.apache.kerby.kerberos.kerb.crypto.cksum.RsaMd4CheckSum;
@@ -111,6 +113,14 @@ public class CheckSumHandler {
 
             case HMAC_SHA1_96_AES256:
                 cksumHandler = new HmacSha1Aes256CheckSum();
+                break;
+
+            case HMAC_SHA256_128_AES128:
+                cksumHandler = new HmacSha256Aes128CheckSum();
+                break;
+
+            case HMAC_SHA384_192_AES256:
+                cksumHandler = new HmacSha384Aes256CheckSum();
                 break;
 
             case CMAC_CAMELLIA128:

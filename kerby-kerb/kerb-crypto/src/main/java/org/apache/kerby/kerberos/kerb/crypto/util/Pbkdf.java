@@ -35,4 +35,20 @@ public class Pbkdf {
         SecretKey key = skf.generateSecret(ks);
         return key.getEncoded();
     }
+
+    public static byte[] pbkdf2Sha256(char[] secret, byte[] salt,
+                                      int count, int keySize) throws GeneralSecurityException {
+        PBEKeySpec ks = new PBEKeySpec(secret, salt, count, keySize * 8);
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        SecretKey key = skf.generateSecret(ks);
+        return key.getEncoded();
+    }
+
+    public static byte[] pbkdf2Sha384(char[] secret, byte[] salt,
+                                      int count, int keySize) throws GeneralSecurityException {
+        PBEKeySpec ks = new PBEKeySpec(secret, salt, count, keySize * 8);
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA384");
+        SecretKey key = skf.generateSecret(ks);
+        return key.getEncoded();
+    }
 }

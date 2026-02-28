@@ -67,6 +67,12 @@ public enum CheckSumType implements EnumType {
     /** Defined in RFC 3962, section 7 */
     HMAC_SHA1_96_AES256 (0x0010, "hmac-sha1-96-aes256", "HMAC-SHA1 AES256 key"),
 
+    /** Defined in RFC 8009, section 5 */
+    HMAC_SHA256_128_AES128(0x0013, "hmac-sha256-128-aes128", "HMAC-SHA256 AES128 key"),
+
+    /** Defined in RFC 8009, section 5 */
+    HMAC_SHA384_192_AES256(0x0014, "hmac-sha384-192-aes256", "HMAC-SHA384 AES256 key"),
+
     /** Defined in RFC 6803, section 9 */
     CMAC_CAMELLIA128    (0x0011, "cmac-camellia128", "CMAC Camellia128 key"),
 
